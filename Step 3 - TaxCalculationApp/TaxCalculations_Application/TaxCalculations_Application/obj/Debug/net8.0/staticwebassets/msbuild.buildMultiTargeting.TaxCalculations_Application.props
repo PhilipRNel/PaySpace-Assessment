@@ -1,0 +1,3 @@
+﻿<Project>
+  <Import Project="..\build\TaxCalculations_Application.props" />
+</Project>

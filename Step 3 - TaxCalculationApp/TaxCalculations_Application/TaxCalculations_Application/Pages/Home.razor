@@ -1,0 +1,269 @@
+﻿@page "/"
+
+@using TaxCalculationsApplication.ServiceHandler
+@using TaxCalculationsApplication.DataModels
+@using System.Globalization
+
+<PageTitle>Tax Calculator</PageTitle>
+
+<h2 class="text-2xl leading-6 font-semibold text-gray-900">Tax Calculator</h2>
+
+<div class="flex flex-wrap mt-4 p-7 bg-white shadow-md rounded-lg">
+    <div class="space-y-8 divide-y divide-white w-full">
+        <div class="space-y-8 divide-y divide-white">
+
+            <div>
+                <h3 class="text-lg leading-5 font-medium text-gray-900">Tax Information</h3>
+                <p class="mt-1 text-sm text-gray-500">Use the postal code and annual income to calculate your tax value.</p>
+            </div>
+
+            <div class="mt-6 grid grid-cols-1 gap-y-6 gap-x-9 sm:grid-cols-6">
+                <div class="sm:col-span-3">
+
+                    <label for="txtPostalCode" class="block text-sm font-medium text-gray-700">Postal Code</label>
+                    <div class="mt-1">
+                        <input id="txtPostalCode" aria-label="Postal Code" @bind="@taxCalculationDto.PostalCode" @bind:event="oninput" @onkeypress="@txtPostalCode_onkeypress" @onchange="@txtPostalCode_onchange" type="text" class="shadow-sm px-2 py-2 h-10 focus:outline-none block w-full sm:text-sm rounded-md @PostalCode_Exception_CSS">
+                    </div>
+                    <label for="txtPostalCode" class="text-center text-red-500 text-xs mt-1">@PostalCode_ExceptionMessage</label>
+
+                </div>
+                <div class="sm:col-span-3">
+
+                    <label for="txtAnnualIncome" class="block text-sm font-medium text-gray-700">Annual Income</label>
+                    <div class="mt-1">
+                        <input id="txtAnnualIncome" aria-label="Postal Code" @bind="@taxCalculationDto.AnnualIncome" @bind:event="oninput" @onkeypress="@txtAnnualIncome_onkeypress" @onchange="@txtAnnualIncome_onchange" type="number" class="shadow-sm px-2 py-2 h-10 focus:outline-none block w-full sm:text-sm rounded-md @AnnualIncome_Exception_CSS">
+                    </div>
+                    <label for="txtAnnualIncome" class="text-center text-red-500 text-xs mt-1">@AnnualIncome_ExceptionMessage</label>
+
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <div class="flex w-full justify-end">
+
+                    <Control_Custom_Button ButtonName="btnCalculateTax" ButtonText="Calculate" OnClick="btnCalculateTax_click" />
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div class="mt-4 p-7 bg-white shadow-md rounded-lg @ShowCalculation_CSS">
+    <p class="w-full text-left md:text-center text-xl leading-5 font-medium text-gray-600">Annual income after tax:</p>
+    <p class="w-full text-left md:text-center mt-4 text-5xl font-semibold text-gray-700">@((taxCalculationDto.AnnualIncome - taxCalculationDto.CalculatedTaxValue).ToString("N2"))</p>
+    <p class="w-full text-left md:text-center mt-10 text-sm text-gray-700"><span class="font-semibold">Taxable income for the year: </span> @taxCalculationDto.AnnualIncome.ToString("N2")</p>
+    <p class="w-full text-left md:text-center mt-1 text-sm text-gray-700"><span class="font-semibold">Tax calculated for the year: </span> @taxCalculationDto.CalculatedTaxValue.ToString("N2")</p>
+</div>
+
+@code
+{
+
+    #region "Private Variables"
+
+    private ApiServiceHandler _ApiServiceHandler = new ApiServiceHandler();
+
+    private CalculatedTaxHistoryRecord calculatedTaxHistoryDto = new CalculatedTaxHistoryRecord();
+
+    private TaxCalculationRecord taxCalculationDto = new TaxCalculationRecord();
+
+    private string PostalCode_Exception_CSS { get; set; } = string.Empty;
+    private string PostalCode_ExceptionMessage { get; set; } = string.Empty;
+
+    private string AnnualIncome_Exception_CSS { get; set; } = string.Empty;
+    private string AnnualIncome_ExceptionMessage { get; set; } = string.Empty;
+
+    private string ShowCalculation_CSS { get; set; } = string.Empty;
+
+    private bool HasException { get; set; }
+
+    #endregion
+
+    #region "Private Functions\Methods"
+
+    private void Control_Validation(string ControlName)
+    {
+        HasException = false;
+
+        switch (ControlName)
+        {
+            case "txtPostalCode":
+
+                if (string.IsNullOrEmpty(taxCalculationDto.PostalCode))
+                {
+                    HasException = true;
+
+                    PostalCode_Exception_CSS = "border border-red-400 focus:border-red-500";
+                    PostalCode_ExceptionMessage = "No or invalid Postal Code supplied.";
+                }
+                else
+                {
+                    PostalCode_Exception_CSS = "border border-gray-300 focus:border-gray-400";
+                    PostalCode_ExceptionMessage = string.Empty;
+                }
+
+                break;
+
+            case "txtAnnualIncome":
+
+                if (!IsFinancialValueValid(taxCalculationDto.AnnualIncome.ToString()))
+                {
+                    HasException = true;
+
+                    AnnualIncome_Exception_CSS = "border border-red-400 focus:border-red-500";
+                    AnnualIncome_ExceptionMessage = "No or invalid Annual Income supplied.";
+                }
+                else
+                {
+                    AnnualIncome_Exception_CSS = "border border-gray-300 focus:border-gray-400";
+                    AnnualIncome_ExceptionMessage = string.Empty;
+                }
+
+                break;
+
+            default:
+
+                if (string.IsNullOrEmpty(taxCalculationDto.PostalCode))
+                {
+                    HasException = true;
+
+                    PostalCode_Exception_CSS = "border border-red-400 focus:border-red-500";
+                    PostalCode_ExceptionMessage = "No or invalid Postal Code supplied.";
+                }
+                else
+                {
+                    PostalCode_Exception_CSS = "border border-gray-300 focus:border-gray-400";
+                    PostalCode_ExceptionMessage = string.Empty;
+                }
+
+                if (!IsFinancialValueValid(taxCalculationDto.AnnualIncome.ToString()))
+                {
+                    HasException = true;
+
+                    AnnualIncome_Exception_CSS = "border border-red-400 focus:border-red-500";
+                    AnnualIncome_ExceptionMessage = "No or invalid Annual Income supplied.";
+                }
+                else
+                {
+                    AnnualIncome_Exception_CSS = "border border-gray-300 focus:border-gray-400";
+                    AnnualIncome_ExceptionMessage = string.Empty;
+                }
+
+                break;
+        }
+
+        this.StateHasChanged();
+
+    }
+
+    private bool IsFinancialValueValid(string value)
+    {
+        // ----- Using regular expression to match the specified format ----- //
+        const string pattern = @"^\d{1,17}\.\d{2}$";
+
+        return System.Text.RegularExpressions.Regex.IsMatch(value, pattern);
+    }
+
+    #endregion
+
+    #region "Constructors"
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+
+        PostalCode_Exception_CSS = "border border-gray-300 focus:border-gray-400";
+        AnnualIncome_Exception_CSS = "border border-gray-300 focus:border-gray-400";
+
+        ShowCalculation_CSS = "hidden";
+
+        HasException = false;
+    }
+
+    #endregion
+
+    #region "Form Events"
+
+    // ----- Form Events ----- //
+
+    #endregion
+
+    #region "Control Events"
+
+    private void txtPostalCode_onkeypress()
+    {
+        ShowCalculation_CSS = "hidden";
+    }
+
+    private void txtPostalCode_onchange(ChangeEventArgs args)
+    {
+        Control_Validation("txtPostalCode");
+    }
+
+    private void txtAnnualIncome_onkeypress()
+    {
+        ShowCalculation_CSS = "hidden";
+    }
+
+    private void txtAnnualIncome_onchange(ChangeEventArgs args)
+    {
+        if (decimal.TryParse(taxCalculationDto.AnnualIncome.ToString(), out decimal decAnnualIncome))
+        {
+            // Check if there is no "." at the end
+            if (!decAnnualIncome.ToString().Contains("."))
+            {
+                // Append ".00" to the decimal value
+                taxCalculationDto.AnnualIncome = decimal.Parse($"{decAnnualIncome:F2}");
+            }
+        }
+
+        Control_Validation("txtAnnualIncome");
+    }
+
+    private async Task btnCalculateTax_click()
+    {
+        Control_Validation("");
+
+        if (!HasException)
+        {
+            try
+            {
+                // ----- Get Data - Get Calculated Tax Value ----- //
+                taxCalculationDto.CalculatedTaxValue = 0;
+                TaxCalculation_Item_ResponseRecord taxCalculation_Item_ResponseDto = await _ApiServiceHandler.PostAsync<TaxCalculation_Item_ResponseRecord>("https://localhost:44317", "/api/TaxCalculatorController/CalculateTaxValue", taxCalculationDto);
+
+                if (taxCalculation_Item_ResponseDto.ResponseCode == 200)
+                {
+                    ShowCalculation_CSS = "flex flex-wrap";
+
+                    taxCalculationDto = taxCalculation_Item_ResponseDto.ResponseData;
+
+                    // ----- Put Data - Insert To The Calculated Tax History ----- //
+                    calculatedTaxHistoryDto.PostalCode = taxCalculationDto.PostalCode;
+                    calculatedTaxHistoryDto.AnnualIncome = taxCalculationDto.AnnualIncome;
+                    calculatedTaxHistoryDto.CalculatedTax = taxCalculationDto.CalculatedTaxValue;
+                    calculatedTaxHistoryDto.CalculatedDateTime = DateTime.Now;
+
+                    CalculatedTaxHistory_Item_ResponseRecord calculatedTaxHistory_Item_ResponseDto = await _ApiServiceHandler.PutAsync<CalculatedTaxHistory_Item_ResponseRecord>("https://localhost:44317", "/api/CalculatedTaxHistoryController/InsertCalculatedTaxHistoryAsync", calculatedTaxHistoryDto);
+
+                    if (calculatedTaxHistory_Item_ResponseDto.ResponseCode != 200)
+                    {
+                        // ----- General Message Popup - Supply Error Received from Api Response ----- //
+                    }
+                }
+                else
+                {
+                    // ----- General Message Popup - Supply Error Received from Api Response ----- //
+                }
+            }
+            catch (Exception)
+            {
+                // ----- General Message Popup - Supply Error Received from Api Response ----- //
+            }
+        }
+    }
+
+    #endregion
+     
+}

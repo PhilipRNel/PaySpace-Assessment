@@ -1,0 +1,41 @@
+{
+  "Files": [
+    {
+      "Id": "E:\\PaySpace\\Step 3 - TaxCalculationApp\\TaxCalculations_Application\\TaxCalculations_Application\\bin\\Debug\\net8.0\\wwwroot\\_framework\\blazor.webassembly.js",
+      "PackagePath": "staticwebassets\\_framework\\blazor.webassembly.js"
+    },
+    {
+      "Id": "E:\\PaySpace\\Step 3 - TaxCalculationApp\\TaxCalculations_Application\\TaxCalculations_Application\\obj\\Debug\\net8.0\\compressed\\vmcoa98f7v.gz",
+      "PackagePath": "staticwebassets\\_framework\\blazor.webassembly.js.gz"
+    },
+    {
+      "Id": "E:\\PaySpace\\Step 3 - TaxCalculationApp\\TaxCalculations_Application\\TaxCalculations_Application\\wwwroot\\Resources\\TaxCalculatorLogo.png",
+      "PackagePath": "staticwebassets\\Resources\\TaxCalculatorLogo.png"
+    },
+    {
+      "Id": "E:\\PaySpace\\Step 3 - TaxCalculationApp\\TaxCalculations_Application\\TaxCalculations_Application\\wwwroot\\css\\app.css",
+      "PackagePath": "staticwebassets\\css\\app.css"
+    },
+    {
+      "Id": "E:\\PaySpace\\Step 3 - TaxCalculationApp\\TaxCalculations_Application\\TaxCalculations_Application\\wwwroot\\index.html",
+      "PackagePath": "staticwebassets\\index.html"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.TaxCalculationsApplication.Microsoft.AspNetCore.StaticWebAssets.props",
+      "PackagePath": "build\\Microsoft.AspNetCore.StaticWebAssets.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.build.TaxCalculationsApplication.props",
+      "PackagePath": "build\\TaxCalculationsApplication.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.buildMultiTargeting.TaxCalculationsApplication.props",
+      "PackagePath": "buildMultiTargeting\\TaxCalculationsApplication.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.buildTransitive.TaxCalculationsApplication.props",
+      "PackagePath": "buildTransitive\\TaxCalculationsApplication.props"
+    }
+  ],
+  "ElementsToRemove": []
+}
